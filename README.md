@@ -1,5 +1,6 @@
 # MSR-CNN
   (English)The implementation of Mongolian Speech Recognition using tensorflow and flask
+  
   (Монгол)Монгол хэл дээрх Яриа боловсруулагчийг Tensorflow болон Flask ашиглан хэрэгжүүлэв
 
 # Objective ||| Зорилго
