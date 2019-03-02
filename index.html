@@ -1,0 +1,147 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="js/hark.bundle.js"></script>
+<style>
+    .recording{
+        width: 30%;
+        height: 60%;
+        margin-top: 18%;
+        margin-left: 35%;
+    }
+
+
+    .starting_div{
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        color: black;
+        text-align: center;
+        padding-top: 300px;
+        font-size: 40px;
+
+        -webkit-animation-duration: 15s;animation-duration: 15s;
+        -webkit-animation-fill-mode: both;animation-fill-mode: both;
+    }
+    
+    @-webkit-keyframes fadeOut {
+        0% {opacity: 1;}
+        100% {opacity: 0;}
+    }
+    
+    @keyframes fadeOut {
+        0% {opacity: 1;}
+        100% {opacity: 0;}
+    }
+    
+    .fadeOut {
+        -webkit-animation-name: fadeOut;
+        animation-name: fadeOut;
+    }
+
+    button{
+        width: 200px;
+        height: 80px;
+        background-color: #ffadad;
+        font-size: 35px;
+        cursor: pointer;
+    }
+
+    #result_audios{
+
+    }
+
+    #message{
+        font-size: 30px;
+    }
+
+</style>
+<div class="starting_div fadeOut" id="starting_div">Та 0-9(Тэгээс ес)-ийн цифр таних програмд холбогдлоо</div>
+<div class="recording">
+    <button id="start">Эхлэх</button>
+    <!-- <button id="stop">Дуусах</button> -->
+    <br>
+    <label id="message"> Хүлээж байна </label>
+    <br>
+    <br>
+    <div id="result_audios"></div>
+</div>
+
+
+<script>
+    setTimeout(() => {
+        $("#starting_div").css("display","none");
+        console.log("cleared")
+    }, 3000);
+
+
+    var label = document.getElementById('label');
+    var start_btn = document.getElementById('start');
+    // var stop_btn = document.getElementById('stop');
+    // appends an audio element to playback and download recording
+    function createAudioElement(blobUrl) {
+        const downloadEl = document.createElement('a');
+        downloadEl.style = 'display: block';
+        downloadEl.innerHTML = 'download';
+        downloadEl.download = 'audio.webm';
+        downloadEl.href = blobUrl;
+        const audioEl = document.createElement('audio');
+        audioEl.controls = true;
+        const sourceEl = document.createElement('source');
+        sourceEl.src = blobUrl;
+        sourceEl.type = 'audio/webm';
+        audioEl.appendChild(sourceEl);
+        document.getElementById('result_audios').appendChild(audioEl);
+        document.getElementById('result_audios').appendChild(downloadEl);
+    }
+    navigator.mediaDevices.getUserMedia({ audio: {frameRate: 44100,sampleSize:16} }).then(stream => {
+        // store streaming data chunks in array
+        var chunks = [];
+        // create media recorder instance to initialize recording
+        const recorder = new MediaRecorder(stream);
+        // function to be called when data is received
+        recorder.ondataavailable = e => {
+            // add stream data to chunks
+            chunks.push(e.data);
+            console.log(chunks);
+            if (recorder.state == 'inactive') {
+                var blob = new Blob(chunks, { type: 'audio/webm' });
+
+                createAudioElement(URL.createObjectURL(blob));                
+                var fd = new FormData();
+                fd.append('blob', blob);
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:5000/api/to_back_end/predict',
+                    // xhrFields: {
+                    withCredentials: true,
+                    // },
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function(data) {
+                    if(data.toString() == "silence" || data.toString() == "_silence_") alert("Дуу илрүүлж чадсангүй... Та дахин оролдоно уу?");
+                    else alert("Таны дуунаас " + data.toString() + "-г хэлсэн гэж таамаглалаа.");
+                    document.getElementById('message').innerHTML = "Хүлээж байна...";
+                });
+            }
+        };
+        // start recording with 1 second time between receiving 'ondataavailable' events
+        start_btn.onclick = function(){
+            chunks = [] 
+            console.log('record has started');
+            recorder.start(1000);
+            document.getElementById('message').innerHTML = "Дуу хурааж эхэллээ...";
+            setTimeout(() => {
+                console.log('record has stopped');
+                recorder.stop();
+                document.getElementById('message').innerHTML = "Дуу хурааж дууслаа...";
+            }, 3000);
+        };
+        // stop_btn.onclick = function(){
+        //     console.log('record has stopped');
+        //     recorder.stop();
+        // };
+    }).catch(console.error);
+</script>
