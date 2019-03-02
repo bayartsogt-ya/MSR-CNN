@@ -60,7 +60,7 @@
 <div class="starting_div fadeOut" id="starting_div">Та 0-9(Тэгээс ес)-ийн цифр таних програмд холбогдлоо</div>
 <div class="recording">
     <button id="start">Эхлэх</button>
-    <!-- <button id="stop">Дуусах</button> -->
+    <button id="stop">Дуусах</button>
     <br>
     <label id="message"> Хүлээж байна </label>
     <br>
@@ -139,9 +139,9 @@
                 document.getElementById('message').innerHTML = "Дуу хурааж дууслаа...";
             }, 3000);
         };
-        // stop_btn.onclick = function(){
-        //     console.log('record has stopped');
-        //     recorder.stop();
-        // };
+        stop_btn.onclick = function(){
+            console.log('record has stopped');
+            recorder.stop();
+        };
     }).catch(console.error);
 </script>
