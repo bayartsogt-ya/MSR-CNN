@@ -17,7 +17,7 @@
 
   (Монгол)Жич: Хөгжүүлэлтийг python3(.6.5) дээр хийсэн ба python2 дээр туршаагүй болно. Browser-ийн хувьд Google Chrome дээр туршсан ба Safari дээр ажиллахгүй болно.
   
-    pip3 install -r requirement.txt
+    pip3 install -r /path-to-project/requirement.txt
     python3 /path-to-project/app.py
     open index.html
     
